@@ -31,6 +31,9 @@ class WeatherVM : ViewModel() {
 
     }
 
+    //use : https://www.figma.com/design/LfxPlArXOlJ74YNfQwpz8s/SALY---3D-Illustration-Pack-(Community)?node-id=7-4&node-type=canvas
+    //use : https://www.figma.com/design/kCYEnx8j7LCxOiBcr2sjFM/Weatherly-3D-Icons---Demo-version-(Community)?node-id=0-10
+    //use : https://github.com/Mercandj/android-dev-challenge-compose-4
     fun getWeatherIcon(iconName: String): Int {
         return when(iconName) {
             "01d.png", "01n.png" -> R.drawable.sunny        //clear sky
