@@ -31,6 +31,21 @@ class WeatherVM : ViewModel() {
 
     }
 
+    fun getWeatherIcon(iconName: String): Int {
+        return when(iconName) {
+            "01d.png", "01n.png" -> R.drawable.sunny        //clear sky
+            "02d.png", "02n.png" -> R.drawable.cloudy_sunny //few clouds
+            "03d.png", "03n.png" -> R.drawable.cloudy       //scattered clouds
+            "04d.png", "04n.png" -> R.drawable.cloudy       //broken clouds
+            "09d.png", "09n.png" -> R.drawable.rainy        //shower rain
+            "10d.png", "10n.png" -> R.drawable.rain         //rain
+            "11d.png", "11n.png" -> R.drawable.wind         //this is thunder
+            "13d.png", "13n.png" -> R.drawable.snowy        //snowy
+            "50d.png", "50n.png" -> R.drawable.windy        //mist
+            else -> R.drawable.cloudy_sunny
+        }
+    }
+
     fun getData(){
         _weatherResult.value = NetworkResponse.Loading
         viewModelScope.launch {
