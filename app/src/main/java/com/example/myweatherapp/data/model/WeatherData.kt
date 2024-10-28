@@ -1,5 +1,7 @@
 package com.example.myweatherapp.data
 
+import com.example.myweatherapp.R
+
 data class WeatherData(
     val base: String,
     val clouds: Clouds,
@@ -55,3 +57,18 @@ data class Wind(
     val deg: Int,
     val speed: Double
 )
+
+fun getWeatherIcon(iconName: String): Int {
+    return when(iconName) {
+        "01d.png", "01n.png" -> R.drawable.img_sun        //clear sky
+        "02d.png", "02n.png" -> R.drawable.img_cloudy //few clouds
+        "03d.png", "03n.png" -> R.drawable.img_cloudy       //scattered clouds
+        "04d.png", "04n.png" -> R.drawable.img_clouds       //broken clouds
+        "09d.png", "09n.png" -> R.drawable.img_sub_rain        //shower rain
+        "10d.png", "10n.png" -> R.drawable.img_rain         //rain
+        "11d.png", "11n.png" -> R.drawable.img_thunder         //this is thunder
+        "13d.png", "13n.png" -> R.drawable.img_snow        //snowy
+        "50d.png", "50n.png" -> R.drawable.img_windy        //mist
+        else -> R.drawable.img_moon_stars
+    }
+}
