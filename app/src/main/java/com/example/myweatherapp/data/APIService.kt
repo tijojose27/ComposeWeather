@@ -1,4 +1,4 @@
-package com.example.myweatherapp.Service
+package com.example.myweatherapp.data
 
 import com.example.myweatherapp.data.model.WeatherData
 import retrofit2.Response
@@ -12,5 +12,5 @@ interface APIService {
         @Query("lat") lat: Double = 29.565040,
         @Query("lon") lon: Double = -95.587918,
         @Query("units") units: String = "imperial"
-    ): Response<WeatherData>
+    ): WeatherData
 }

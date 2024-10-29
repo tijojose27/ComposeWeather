@@ -1,74 +1,68 @@
-package com.example.myweatherapp.data
+package com.example.myweatherapp.data.model
 
+import android.util.Log
 import com.example.myweatherapp.R
 
 data class WeatherData(
-    val base: String,
-    val clouds: Clouds,
-    val cod: Int,
-    val coord: Coord,
-    val dt: Int,
-    val id: Int,
-    val main: Main,
-    val name: String,
-    val sys: Sys,
-    val timezone: Int,
-    val visibility: Int,
-    val weather: List<Weather>,
-    val wind: Wind
-)
+    val base: String = "",
+    val clouds: Clouds = Clouds(),
+    val cod: Int = 0,
+    val coord: Coord = Coord(),
+    val dt: Int = 0,
+    val id: Int = 0,
+    val main: Main = Main(),
+    val name: String = "",
+    val sys: Sys = Sys(),
+    val timezone: Int = 0,
+    val visibility: Int = 0,
+    val weather: List<Weather> = listOf(Weather()),
+    val wind: Wind = Wind()
+) {
+    companion object {
+        val EMPTY = WeatherData()
+    }
+}
 
-data class Clouds(
-    val all: Int
-)
-
-data class Coord(
-    val lat: Double,
-    val lon: Double
-)
-
+data class Clouds(val all: Int = 0)
+data class Coord(val lat: Double = 0.0, val lon: Double = 0.0)
 data class Main(
-    val feels_like: Double,
-    val grnd_level: Int,
-    val humidity: Int,
-    val pressure: Int,
-    val sea_level: Int,
-    val temp: Double,
-    val temp_max: Double,
-    val temp_min: Double
+    val feels_like: Double = 0.0,
+    val grnd_level: Int = 0,
+    val humidity: Int = 0,
+    val pressure: Int = 0,
+    val sea_level: Int = 0,
+    val temp: Double = 0.0,
+    val temp_max: Double = 0.0,
+    val temp_min: Double = 0.0
 )
-
 data class Sys(
-    val country: String,
-    val id: Int,
-    val sunrise: Int,
-    val sunset: Int,
-    val type: Int
+    val country: String = "",
+    val id: Int = 0,
+    val sunrise: Int = 0,
+    val sunset: Int = 0,
+    val type: Int = 0
 )
-
 data class Weather(
-    val description: String,
-    val icon: String,
-    val id: Int,
-    val main: String
+    val description: String = "",
+    val icon: String = "",
+    val id: Int = 0,
+    val main: String = ""
 )
+data class Wind(val deg: Int = 0, val speed: Double = 0.0)
 
-data class Wind(
-    val deg: Int,
-    val speed: Double
-)
 
 fun getWeatherIcon(iconName: String): Int {
+    Log.e("ICON", iconName)
     return when(iconName) {
-        "01d.png", "01n.png" -> R.drawable.img_sun        //clear sky
-        "02d.png", "02n.png" -> R.drawable.img_cloudy //few clouds
-        "03d.png", "03n.png" -> R.drawable.img_cloudy       //scattered clouds
-        "04d.png", "04n.png" -> R.drawable.img_clouds       //broken clouds
-        "09d.png", "09n.png" -> R.drawable.img_sub_rain        //shower rain
-        "10d.png", "10n.png" -> R.drawable.img_rain         //rain
-        "11d.png", "11n.png" -> R.drawable.img_thunder         //this is thunder
-        "13d.png", "13n.png" -> R.drawable.img_snow        //snowy
-        "50d.png", "50n.png" -> R.drawable.img_windy        //mist
+        "01d", "01n" -> R.drawable.img_sun        //clear sky
+        "02d", "02n" -> R.drawable.img_cloudy //few clouds
+        "03d", "03n" -> R.drawable.img_cloudy       //scattered clouds
+        "04d", "04n" -> R.drawable.img_clouds       //broken clouds
+        "09d", "09n" -> R.drawable.img_sub_rain        //shower rain
+        "10d", "10n" -> R.drawable.img_rain         //rain
+        "11d", "11n" -> R.drawable.img_thunder         //this is thunder
+        "13d", "13n" -> R.drawable.img_snow        //snowy
+        "50d", "50n" -> R.drawable.img_windy        //mist
         else -> R.drawable.img_moon_stars
     }
 }
