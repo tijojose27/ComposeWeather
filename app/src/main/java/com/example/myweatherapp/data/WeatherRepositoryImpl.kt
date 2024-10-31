@@ -1,5 +1,6 @@
 package com.example.myweatherapp.data
 
+import android.util.Log
 import com.example.myweatherapp.data.model.WeatherData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -30,5 +31,11 @@ class WeatherRepositoryImpl(
         }
     }
 
+    override suspend fun getErrro(): Flow<Result<WeatherData>> {
+        return flow {
+            Log.e("DEBUG", "errro is got")
+            emit(Result.Error(data = null, message = "ERROR"))
+        }
+    }
 
 }

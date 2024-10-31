@@ -5,4 +5,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface WeatherRepository {
     suspend fun getWeather(): Flow<Result<WeatherData>>
+    suspend fun getErrro(): Flow<Result<WeatherData>>
 }

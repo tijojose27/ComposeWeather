@@ -1,6 +1,7 @@
 package com.example.myweatherapp
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -53,7 +54,6 @@ import java.util.Date
 import java.util.Locale
 import kotlin.math.roundToInt
 
-
 class MainActivity : ComponentActivity() {
     private val testViewModel by viewModels<TestWeatherVM>(factoryProducer = {
         object : ViewModelProvider.Factory {
@@ -87,23 +87,35 @@ class MainActivity : ComponentActivity() {
 
                 ) {
 
-                    val weather = testViewModel.weather.collectAsState().value
+//                    val weather = testViewModel.weather.collectAsState().value
                     val context = LocalContext.current
+                    testViewModel.getWeather()
 
-                    LaunchedEffect(key1 = testViewModel.showErrorToastChannel) {
-                        testViewModel.showErrorToastChannel.collectLatest { show ->
-                            if (show) {
-                                Toast.makeText(
-                                    context, "Error", Toast.LENGTH_SHORT).show()
-                            }
+                    LaunchedEffect(Unit) {
+                        var hasTimePassed = true
+                        while (hasTimePassed) {
+                            kotlinx.coroutines.delay(10000L)
+                            testViewModel.getError()
+                            Log.e("DEBUG", "The timer has executed")
+                            hasTimePassed = false
                         }
                     }
 
-                    if (weather.name.isEmpty()) {
+//                    LaunchedEffect(key1 = testViewModel.showErrorToastChannel) {
+//                        testViewModel.showErrorToastChannel.collectLatest { show ->
+//                            if (show) {
+//                                Toast.makeText(
+//                                    context, "Error", Toast.LENGTH_SHORT).show()
+//                            }
+//                        }
+//                    }
 
-                    } else {
-                        WeatherScreen(weatherData = weather)
-                    }
+//                    if (weather.name.isEmpty()) {
+//
+//                    } else {
+//                        WeatherScreen(weatherData = weather)
+//                    }
+                    testViewModel.wea
                 }
             }
         }
