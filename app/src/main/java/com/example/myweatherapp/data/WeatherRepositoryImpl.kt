@@ -12,6 +12,7 @@ class WeatherRepositoryImpl(
 ): WeatherRepository {
     override suspend fun getWeather(): Flow<Result<WeatherData>> {
         return flow {
+            Log.e("DEBUG", "Getting weather from Repo")
             val weatherFromAPI = try {
                 api.getWeather()
             } catch (e: IOException) {
@@ -33,7 +34,7 @@ class WeatherRepositoryImpl(
 
     override suspend fun getErrro(): Flow<Result<WeatherData>> {
         return flow {
-            Log.e("DEBUG", "errro is got")
+            Log.e("DEBUG", "Getting Error from Repo")
             emit(Result.Error(data = null, message = "ERROR"))
         }
     }

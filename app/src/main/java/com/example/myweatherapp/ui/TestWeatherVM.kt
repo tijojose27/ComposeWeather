@@ -6,6 +6,7 @@ import com.example.myweatherapp.data.Result
 import com.example.myweatherapp.data.WeatherRepository
 import com.example.myweatherapp.data.model.Weather
 import com.example.myweatherapp.data.model.WeatherData
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,7 +21,7 @@ class TestWeatherVM(
 ): ViewModel() {
 
     private val _weather = MutableStateFlow(WeatherData.EMPTY)
-    val weather = _weather.asStateFlow()
+    val  weather = _weather.asStateFlow()
 
     private val _showErrorToastChannel= Channel<Boolean>()
     val showErrorToastChannel = _showErrorToastChannel.receiveAsFlow()
@@ -45,7 +46,7 @@ class TestWeatherVM(
 //    }
 
     fun getWeatherAsStateFlow() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             weatherRepository.getWeather().collectLatest { result ->
                 when(result) {
                     is Result.Error -> {
@@ -63,7 +64,7 @@ class TestWeatherVM(
 
 
     fun getError() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             weatherRepository.getErrro().collectLatest { result ->
                 when(result) {
                     is Result.Error -> {

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -24,6 +25,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,12 +40,14 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.myweatherapp.data.RetrofitInstance
 import com.example.myweatherapp.data.WeatherRepositoryImpl
+import com.example.myweatherapp.data.model.Weather
 import com.example.myweatherapp.data.model.WeatherData
 import com.example.myweatherapp.data.model.getWeatherIcon
 import com.example.myweatherapp.ui.TestWeatherVM
@@ -86,42 +90,171 @@ class MainActivity : ComponentActivity() {
 //                }
 
                 ) {
-
-//                    val weather = testViewModel.weather.collectAsState().value
                     val context = LocalContext.current
-                    testViewModel.getWeather()
+//                    testViewModel.getError()
+                    testViewModel.getWeatherAsStateFlow()
+                    val weather = testViewModel.weather.collectAsState()
 
-                    LaunchedEffect(Unit) {
-                        var hasTimePassed = true
-                        while (hasTimePassed) {
-                            kotlinx.coroutines.delay(10000L)
-                            testViewModel.getError()
-                            Log.e("DEBUG", "The timer has executed")
-                            hasTimePassed = false
-                        }
-                    }
 
-//                    LaunchedEffect(key1 = testViewModel.showErrorToastChannel) {
-//                        testViewModel.showErrorToastChannel.collectLatest { show ->
-//                            if (show) {
-//                                Toast.makeText(
-//                                    context, "Error", Toast.LENGTH_SHORT).show()
-//                            }
+//                    LaunchedEffect(Unit) {
+//                        var hasTimePassed = true
+//                        while (hasTimePassed) {
+//                            kotlinx.coroutines.delay(2000L)
+//                            testViewModel.getWeatherAsStateFlow()
+//                            Log.e("DEBUG", "The timer has executed")
+//                            hasTimePassed = false
 //                        }
 //                    }
 
-//                    if (weather.name.isEmpty()) {
-//
-//                    } else {
-//                        WeatherScreen(weatherData = weather)
-//                    }
-                    testViewModel.wea
+                    LaunchedEffect(key1 = testViewModel.showErrorToastChannel) {
+                        testViewModel.showErrorToastChannel.collectLatest { show ->
+                            if (show) {
+                                Toast.makeText(
+                                    context, "Error", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+
+                    showWeatherTimeDisplay(weather)
                 }
             }
         }
     }
+
+    @Composable
+    private fun showWeatherTimeDisplay(weather: State<WeatherData>) {
+        if (weather.value == WeatherData.EMPTY) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Empty Weather",
+                )
+            }
+        } else {
+            WeatherScreen(weatherData = weather.value)
+        }
+    }
 }
 
+
+@Composable
+fun WeatherScreen(weatherData: WeatherData) {
+    Box(modifier = Modifier
+        .padding()
+        .fillMaxSize()
+        .background(
+            brush = Brush.horizontalGradient(
+                colors = listOf(
+                    Color(android.graphics.Color.parseColor("#59469d")),
+                    Color(android.graphics.Color.parseColor("#643d67")),
+                )
+            )
+        ))
+    {
+//        Column(modifier = Modifier.fillMaxSize()) {
+//            LazyColumn(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+//                item {
+//                    DigitalClock()
+//                    weatherCard(weatherData)
+//                    weatherDetails(weatherData)
+//                    testWeatherCard(weatherData)
+//                }
+//            }
+//        }
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceAround
+        ) {
+//            testWeatherCard(weatherData)
+//            testDigitalClock()
+            testDigitalClock()
+            Text("SECOND Content")
+        }
+    }
+}
+
+
+@Preview
+@Composable
+fun WeatherPreview() {
+    testWeatherCard(weatherData = WeatherData.EMPTY)
+}
+
+@Composable
+private fun testWeatherCard(weatherData: WeatherData) {
+    Text(
+        text = weatherData.weather[0].description,
+        fontSize = 20.sp,
+        color = Color.White,
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 48.dp),
+        textAlign = TextAlign.Center
+    )
+    Image(
+        painter = painterResource(id = getWeatherIcon(weatherData.weather[0].icon)),
+        contentDescription = null,
+        modifier = Modifier
+            .size(150.dp)
+            .padding(top = 8.dp)
+    )
+    Text(
+        text = "Mon Jun 17 | 10:08AM",
+        fontSize = 19.sp,
+        color = Color.White,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp),
+        textAlign = TextAlign.Center
+    )
+    Text(
+        text = "${weatherData.main.temp.roundToInt()}°C",
+        fontSize = 63.sp,
+        fontWeight = FontWeight.Bold,
+        color = Color.White,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp),
+        textAlign = TextAlign.Center
+    )
+    Text(
+        text = "H:${weatherData.main.temp_max.roundToInt()} L:${weatherData.main.temp_min}",
+        fontSize = 16.sp,
+        color = Color.White,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp),
+        textAlign = TextAlign.Center
+    )
+}
+
+
+@Composable
+fun testDigitalClock() {
+    var currentTime by remember { mutableStateOf(getCurrentTime()) }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            currentTime = getCurrentTime()
+            kotlinx.coroutines.delay(1000L)
+        }
+    }
+
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.fillMaxHeight()
+    ) {
+        Text(
+            text = currentTime,
+            fontSize = 48.sp
+        )
+    }
+}
 
 @Composable
 fun DigitalClock() {
@@ -151,82 +284,82 @@ fun getCurrentTime(): String {
 }
 
 @Composable
-fun WeatherScreen(weatherData: WeatherData) {
-    Box(modifier = Modifier
-        .padding()
-        .fillMaxSize()
-        .background(
-            brush = Brush.horizontalGradient(
-                colors = listOf(
-                    Color(android.graphics.Color.parseColor("#59469d")),
-                    Color(android.graphics.Color.parseColor("#643d67")),
-                )
-            )
-        ))
-    {
-        Column(modifier = Modifier.fillMaxSize()) {
-            LazyColumn(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
-                item {
-                    DigitalClock()
-                    Text(text = weatherData.weather[0].description,
-                        fontSize = 20.sp,
-                        color = Color.White,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(top = 48.dp),
-                        textAlign = TextAlign.Center)
-                    Image(painter = painterResource(id = getWeatherIcon(weatherData.weather[0].icon)),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(150.dp)
-                            .padding(top = 8.dp))
-                    Text(text = "Mon Jun 17 | 10:08AM",
-                        fontSize = 19.sp,
-                        color = Color.White,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 8.dp),
-                        textAlign = TextAlign.Center
-                        )
-                    Text(text = "${weatherData.main.temp.roundToInt()}°C",
-                        fontSize = 63.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 8.dp),
-                        textAlign = TextAlign.Center
-                        )
-                    Text(text = "H:${weatherData.main.temp_max.roundToInt()} L:${weatherData.main.temp_min}",
-                        fontSize = 16.sp,
-                        color = Color.White,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 8.dp),
-                        textAlign = TextAlign.Center
-                    )
+private fun weatherCard(weatherData: WeatherData) {
+    Text(
+        text = weatherData.weather[0].description,
+        fontSize = 20.sp,
+        color = Color.White,
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 48.dp),
+        textAlign = TextAlign.Center
+    )
+    Image(
+        painter = painterResource(id = getWeatherIcon(weatherData.weather[0].icon)),
+        contentDescription = null,
+        modifier = Modifier
+            .size(150.dp)
+            .padding(top = 8.dp)
+    )
+    Text(
+        text = "Mon Jun 17 | 10:08AM",
+        fontSize = 19.sp,
+        color = Color.White,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp),
+        textAlign = TextAlign.Center
+    )
+    Text(
+        text = "${weatherData.main.temp.roundToInt()}°C",
+        fontSize = 63.sp,
+        fontWeight = FontWeight.Bold,
+        color = Color.White,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp),
+        textAlign = TextAlign.Center
+    )
+    Text(
+        text = "H:${weatherData.main.temp_max.roundToInt()} L:${weatherData.main.temp_min}",
+        fontSize = 16.sp,
+        color = Color.White,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp),
+        textAlign = TextAlign.Center
+    )
+}
 
-                    Box(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 24.dp, vertical = 16.dp)
-                        .background(
-                            color = colorResource(id = R.color.purple_200),
-                            shape = RoundedCornerShape(25.dp)
-                        )
-                    ) {
-                        Row (modifier = Modifier
-                            .fillMaxWidth()
-                            .wrapContentHeight()
-                            .padding(horizontal = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceAround
-                        ) {
-                            WeatherDetailItem(icon = R.drawable.img_windy, value = "${weatherData.wind.speed.roundToInt()}", label = "Wind Speed")
-                            WeatherDetailItem(icon = R.drawable.humidity, value = "${weatherData.main.humidity} %", label = "Humidity")
-                        }
-                    }
-                }
-            }
+@Composable
+private fun weatherDetails(weatherData: WeatherData) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 16.dp)
+            .background(
+                color = colorResource(id = R.color.purple_200),
+                shape = RoundedCornerShape(25.dp)
+            )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(horizontal = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceAround
+        ) {
+            WeatherDetailItem(
+                icon = R.drawable.img_windy,
+                value = "${weatherData.wind.speed.roundToInt()}",
+                label = "Wind Speed"
+            )
+            WeatherDetailItem(
+                icon = R.drawable.humidity,
+                value = "${weatherData.main.humidity} %",
+                label = "Humidity"
+            )
         }
     }
 }
