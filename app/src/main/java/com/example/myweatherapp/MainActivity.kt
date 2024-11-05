@@ -1,8 +1,6 @@
 package com.example.myweatherapp
 
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -19,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -47,12 +44,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.myweatherapp.data.RetrofitInstance
 import com.example.myweatherapp.data.WeatherRepositoryImpl
-import com.example.myweatherapp.data.model.Weather
 import com.example.myweatherapp.data.model.WeatherData
 import com.example.myweatherapp.data.model.getWeatherIcon
 import com.example.myweatherapp.ui.TestWeatherVM
+import com.example.myweatherapp.ui.testDigitalClock
+import com.example.myweatherapp.ui.testUIWeatherCard
 import com.example.myweatherapp.ui.theme.MyWeatherAppTheme
-import kotlinx.coroutines.flow.collectLatest
+import com.example.myweatherapp.ui.theme.timeColorGradient1
+import com.example.myweatherapp.ui.theme.timeColorGradient2
+import com.example.myweatherapp.ui.theme.timeColorGradient3
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -75,46 +75,13 @@ class MainActivity : ComponentActivity() {
             MyWeatherAppTheme {
                 Surface(modifier = Modifier
                     .fillMaxSize()
-//                    .pointerInput(Unit) {
-//                        detectTapGestures (
-//                            onTap = {
-//                                finish()
-//                            }
-//                        )
-//                    }
-//                ) { innerPadding ->
-//                    Greeting(
-//                        weatherVM,
-//                        modifier = Modifier.padding(innerPadding)
-//                    )
-//                }
-
                 ) {
                     val context = LocalContext.current
 //                    testViewModel.getError()
                     testViewModel.getWeatherAsStateFlow()
                     val weather = testViewModel.weather.collectAsState()
-
-
-//                    LaunchedEffect(Unit) {
-//                        var hasTimePassed = true
-//                        while (hasTimePassed) {
-//                            kotlinx.coroutines.delay(2000L)
-//                            testViewModel.getWeatherAsStateFlow()
-//                            Log.e("DEBUG", "The timer has executed")
-//                            hasTimePassed = false
-//                        }
-//                    }
-
-                    LaunchedEffect(key1 = testViewModel.showErrorToastChannel) {
-                        testViewModel.showErrorToastChannel.collectLatest { show ->
-                            if (show) {
-                                Toast.makeText(
-                                    context, "Error", Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    }
-
+//                    testViewModel.timeAsFlow.collectAsState(1)
+//                    val time = testViewModel.timeAsFlow.collectAsState("")
                     showWeatherTimeDisplay(weather)
                 }
             }
@@ -145,24 +112,14 @@ fun WeatherScreen(weatherData: WeatherData) {
         .padding()
         .fillMaxSize()
         .background(
-            brush = Brush.horizontalGradient(
-                colors = listOf(
-                    Color(android.graphics.Color.parseColor("#59469d")),
-                    Color(android.graphics.Color.parseColor("#643d67")),
-                )
+            brush = Brush.linearGradient(
+                0f to timeColorGradient1,
+                0.5f to timeColorGradient2,
+                1f to timeColorGradient3
             )
-        ))
+        )
+        )
     {
-//        Column(modifier = Modifier.fillMaxSize()) {
-//            LazyColumn(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
-//                item {
-//                    DigitalClock()
-//                    weatherCard(weatherData)
-//                    weatherDetails(weatherData)
-//                    testWeatherCard(weatherData)
-//                }
-//            }
-//        }
         Row(
             modifier = Modifier
                 .fillMaxSize()
@@ -170,118 +127,14 @@ fun WeatherScreen(weatherData: WeatherData) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceAround
         ) {
-//            testWeatherCard(weatherData)
-//            testDigitalClock()
-            testDigitalClock()
-            Text("SECOND Content")
+            testUIWeatherCard(weatherData = weatherData, modifier = Modifier.weight(1f))
+            testDigitalClock(modifier = Modifier.weight(2f))
         }
     }
 }
 
 
-@Preview
-@Composable
-fun WeatherPreview() {
-    testWeatherCard(weatherData = WeatherData.EMPTY)
-}
 
-@Composable
-private fun testWeatherCard(weatherData: WeatherData) {
-    Text(
-        text = weatherData.weather[0].description,
-        fontSize = 20.sp,
-        color = Color.White,
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = 48.dp),
-        textAlign = TextAlign.Center
-    )
-    Image(
-        painter = painterResource(id = getWeatherIcon(weatherData.weather[0].icon)),
-        contentDescription = null,
-        modifier = Modifier
-            .size(150.dp)
-            .padding(top = 8.dp)
-    )
-    Text(
-        text = "Mon Jun 17 | 10:08AM",
-        fontSize = 19.sp,
-        color = Color.White,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 8.dp),
-        textAlign = TextAlign.Center
-    )
-    Text(
-        text = "${weatherData.main.temp.roundToInt()}°C",
-        fontSize = 63.sp,
-        fontWeight = FontWeight.Bold,
-        color = Color.White,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 8.dp),
-        textAlign = TextAlign.Center
-    )
-    Text(
-        text = "H:${weatherData.main.temp_max.roundToInt()} L:${weatherData.main.temp_min}",
-        fontSize = 16.sp,
-        color = Color.White,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 8.dp),
-        textAlign = TextAlign.Center
-    )
-}
-
-
-@Composable
-fun testDigitalClock() {
-    var currentTime by remember { mutableStateOf(getCurrentTime()) }
-
-    LaunchedEffect(Unit) {
-        while (true) {
-            currentTime = getCurrentTime()
-            kotlinx.coroutines.delay(1000L)
-        }
-    }
-
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier.fillMaxHeight()
-    ) {
-        Text(
-            text = currentTime,
-            fontSize = 48.sp
-        )
-    }
-}
-
-@Composable
-fun DigitalClock() {
-    var currentTime by remember { mutableStateOf(getCurrentTime()) }
-
-    LaunchedEffect(Unit) {
-        while (true) {
-            currentTime = getCurrentTime()
-            kotlinx.coroutines.delay(1000L)
-        }
-    }
-
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier.fillMaxSize()
-    ) {
-        Text(
-            text = currentTime,
-            fontSize = 48.sp
-        )
-    }
-}
-
-fun getCurrentTime(): String {
-    val sdf = SimpleDateFormat("hh:mm:ss a", Locale.getDefault())
-    return sdf.format(Date())
-}
 
 @Composable
 private fun weatherCard(weatherData: WeatherData) {
