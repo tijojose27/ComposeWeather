@@ -1,5 +1,7 @@
 package com.example.myweatherapp.ui
 
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myweatherapp.data.Result
@@ -58,14 +60,23 @@ class TestWeatherVM(
         }
     }
 
+    // Mutable state to hold the dark mode status
+    val isDarkMode = mutableStateOf(false)
+
+    // Function to update dark mode status
+    fun updateDarkMode(isDark: Boolean) {
+        isDarkMode.value = isDark
+    }
+
     private val _showErrorToastChannel= Channel<Boolean>()
     val showErrorToastChannel = _showErrorToastChannel.receiveAsFlow()
 
     private fun collectTimeAsFlow() {
         viewModelScope.launch {
             timeAsFlow.collect { time ->
-                delay(1500L)
+                delay(3000L)
                 println("The current time is $time")
+
             }
         }
     }

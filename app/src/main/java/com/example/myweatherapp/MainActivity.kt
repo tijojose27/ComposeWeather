@@ -1,5 +1,6 @@
 package com.example.myweatherapp
 
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -7,27 +8,25 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -44,26 +43,23 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.myweatherapp.data.RetrofitInstance
 import com.example.myweatherapp.data.WeatherRepositoryImpl
+import com.example.myweatherapp.data.model.Clouds
 import com.example.myweatherapp.data.model.WeatherData
 import com.example.myweatherapp.data.model.getWeatherIcon
 import com.example.myweatherapp.ui.TestWeatherVM
 import com.example.myweatherapp.ui.testDigitalClock
 import com.example.myweatherapp.ui.testUIWeatherCard
+import com.example.myweatherapp.ui.theme.LocalExtendedColors
 import com.example.myweatherapp.ui.theme.MyWeatherAppTheme
-import com.example.myweatherapp.ui.theme.timeColorGradient1
-import com.example.myweatherapp.ui.theme.timeColorGradient2
-import com.example.myweatherapp.ui.theme.timeColorGradient3
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import kotlin.math.roundToInt
+
 
 class MainActivity : ComponentActivity() {
     private val testViewModel by viewModels<TestWeatherVM>(factoryProducer = {
         object : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 return TestWeatherVM(WeatherRepositoryImpl(RetrofitInstance.weatherAPI))
-                as T
+                        as T
             }
         }
     })
@@ -73,8 +69,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MyWeatherAppTheme {
-                Surface(modifier = Modifier
-                    .fillMaxSize()
+                Surface(
+                    modifier = Modifier
+                        .fillMaxSize()
                 ) {
                     val context = LocalContext.current
 //                    testViewModel.getError()
@@ -82,43 +79,111 @@ class MainActivity : ComponentActivity() {
                     val weather = testViewModel.weather.collectAsState()
 //                    testViewModel.timeAsFlow.collectAsState(1)
 //                    val time = testViewModel.timeAsFlow.collectAsState("")
+
                     showWeatherTimeDisplay(weather)
+
+//                    MySimpleScreen()
                 }
             }
         }
     }
 
-    @Composable
-    private fun showWeatherTimeDisplay(weather: State<WeatherData>) {
-        if (weather.value == WeatherData.EMPTY) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "Empty Weather",
-                )
-            }
-        } else {
-            WeatherScreen(weatherData = weather.value)
-        }
+
+}
+
+@Composable
+fun MySimpleScreen() {
+    // Check if the system is in dark mode
+    val isDarkMode = isSystemInDarkTheme()
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(if (isDarkMode) Color.DarkGray else Color.White),
+        contentAlignment = Alignment.Center
+    ) {
+        Text("Here is ", color = if (isDarkMode) Color.White else Color.DarkGray)
     }
 }
 
+@Preview(showSystemUi = true, device = "spec:width=1280dp,height=800dp,dpi=240")
+@Preview(
+    name = "Dark Mode",
+    showSystemUi = true,
+    device = "spec:width=1280dp,height=800dp,dpi=240",
+    uiMode = Configuration.UI_MODE_NIGHT_UNDEFINED
+)
+@Composable
+fun PreviewShowWeatherTimeDisplay() {
+    // Replace this with your actual sample data class or mock data
+    val sampleWeather = remember { mutableStateOf(WeatherData.EMPTY) }
+
+    // Call the composable to be previewed
+//    showWeatherTimeDisplay(weather = sampleWeather)
+    val mainColorGradient1 =
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+//            .background(
+//                brush = Brush.linearGradient(
+//                    0f to colors.mainColorGradient1,
+//                    0.5f to colors.mainColorGradient2,
+//                    1f to colors.mainColorGradient3
+//                )
+//            ),
+//        contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "Empty Weather",
+            )
+        }
+}
+
+@Composable
+private fun showWeatherTimeDisplay(weather: State<WeatherData>) {
+    val isDarkMode = isSystemInDarkTheme()
+    val colors = LocalExtendedColors.current
+    if (weather.value == WeatherData.EMPTY) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    brush = Brush.linearGradient(
+                        0f to colors.mainColorGradient1,
+                        0.5f to colors.mainColorGradient2,
+                        1f to colors.mainColorGradient3
+                    )
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "Empty Weather",
+            )
+        }
+    } else {
+        WeatherScreen(weatherData = weather.value)
+    }
+}
 
 @Composable
 fun WeatherScreen(weatherData: WeatherData) {
-    Box(modifier = Modifier
-        .padding()
-        .fillMaxSize()
-        .background(
-            brush = Brush.linearGradient(
-                0f to timeColorGradient1,
-                0.5f to timeColorGradient2,
-                1f to timeColorGradient3
+    val isDarkMode = isSystemInDarkTheme()
+
+    val MainColorGradient1 = if (isDarkMode) Color(110, 90, 133) else Color(177, 198, 229)
+    val MainColorGradient2 = if (isDarkMode) Color(32, 28, 37) else Color(224, 228, 240)
+    val MainColorGradient3 = if (isDarkMode) Color(15, 14, 18) else Color(141, 155, 204)
+
+    Box(
+        modifier = Modifier
+            .padding()
+            .fillMaxSize()
+            .background(
+                brush = Brush.linearGradient(
+                    0f to MainColorGradient1,
+                    0.5f to MainColorGradient2,
+                    1f to MainColorGradient3
+                )
             )
-        )
-        )
+    )
     {
         Row(
             modifier = Modifier
@@ -132,8 +197,6 @@ fun WeatherScreen(weatherData: WeatherData) {
         }
     }
 }
-
-
 
 
 @Composable
@@ -219,19 +282,23 @@ private fun weatherDetails(weatherData: WeatherData) {
 
 @Composable
 fun WeatherDetailItem(icon: Int, value: String, label: String) {
-    Column(modifier = Modifier.padding(16.dp),
+    Column(
+        modifier = Modifier.padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Image(painter = painterResource(id = icon),
-                contentDescription = null,
-                modifier = Modifier.size(34.dp)
-            )
-        Text(text = value,
+    ) {
+        Image(
+            painter = painterResource(id = icon),
+            contentDescription = null,
+            modifier = Modifier.size(34.dp)
+        )
+        Text(
+            text = value,
             fontWeight = FontWeight.Bold,
             color = colorResource(id = R.color.white),
             textAlign = TextAlign.Center
         )
-        Text(text = label,
+        Text(
+            text = label,
             fontWeight = FontWeight.Bold,
             color = colorResource(id = R.color.white),
             textAlign = TextAlign.Center
